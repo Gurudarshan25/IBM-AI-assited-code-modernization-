@@ -1,29 +1,28 @@
-# log_util.py
-# Eigener Logger. Das logging-Modul war uns 2013 "zu viel Magie".
-# (A homemade logger. The logging module felt like "too much magic" in 2013.)
+"""A homemade logger (the logging module felt like "too much magic" in 2013)."""
 
 import time
 
-LOG_LINES = []                          # global state, shared by everyone who imports this
+LOG_LINES: list[str] = []               # global state, shared by everyone who imports this
 DEBUG = False
 
 
-def log(message):
+def log(message: str) -> None:
+    """Print a timestamped line and keep it for flush_log."""
     stamp = time.strftime("%Y-%m-%d %H:%M:%S")
-    line = "[%s] %s" % (stamp, message)
+    line = f"[{stamp}] {message}"
     LOG_LINES.append(line)
     print(line)
 
 
-def debug(message):
-    # DEBUG ist seit 2014 False. Dieser Zweig ist tot. (DEBUG has been False since 2014.)
-    if DEBUG == True:
-        log("DEBUG: " + message)
+def debug(message: str) -> None:
+    """Log only when DEBUG is on (it has been False since 2014, so this never fires)."""
+    if DEBUG:
+        log(f"DEBUG: {message}")
 
 
-def flush_log(path):
-    f = open(path, "a")
-    for line in LOG_LINES:
-        f.write(line + "\n")
-    f.close()
-    del LOG_LINES[:]                    # so leert man 2013 eine Liste (2013's way to clear a list)
+def flush_log(path: str) -> None:
+    """Append all kept log lines to the file at path, then forget them."""
+    with open(path, "a", encoding="utf-8") as f:
+        for line in LOG_LINES:
+            f.write(f"{line}\n")
+    LOG_LINES.clear()
